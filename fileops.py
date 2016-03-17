@@ -1,9 +1,11 @@
 #! /usr/bin/python
 
 import os
+import sqlite3
 from file_ecc import EncodeFile,DecodeFiles
 from pinger import Pinger
-from dbops import topk
+from dbops import pingips,topk
+
 
 class FileManager(object):
 	filepath = filename = ""
@@ -21,15 +23,15 @@ class FileManager(object):
 	def authenticate(self):
 		ping = Pinger()
 		ping.thread_count = 4
-		ping.hosts = ping.pingips()
+		ping.hosts = pingips()
 		nodes=ping.start()
-		self.userips=nodes['alive']
+                self.userips=nodes['alive']
 		os.system("ssh-keygen")
 		for userip in self.userips:
 			os.system("ssh-copy-id pi@"+userip)
 		return
-
-	def availparts(self):		
+        
+        def availparts(self):		
 		os.system("find "+self.filepath+" -name '"+self.filename+".p_*' > "+self.logFile)
 		self.availfiles = [int(line[-2]) for line in open(self.logFile)]
 		return
@@ -48,6 +50,8 @@ class FileManager(object):
 		self.availparts()
 		self.userips=topk(self.n)
 		files = [line[:-1] for line in open(self.logFile)]
+		print(self.userips)
+		print(files)
 		if(len(self.userips)<len(files)):
 			print "Less active nodes...Connect more devices"
 			print len(self.userips)

@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/python
 
 import subprocess
 import threading
@@ -40,3 +40,4 @@ class Pinger(object):
             threads.append(t)
         [ t.join() for t in threads ]
         return self.status
+
