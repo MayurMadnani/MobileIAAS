@@ -16,6 +16,9 @@ class FileManager(object):
 	userips=[]
 
 	def init(self):
+                path=os.path.abspath(self.filename)
+                self.filepath,self.filename = os.path.split(path)
+                self.filepath = self.filepath+'/'
 		self.testFile = self.prefix = self.filepath+self.filename
 		self.logFile = self.testFile+'.log'
 		return
@@ -50,12 +53,8 @@ class FileManager(object):
 		self.availparts()
 		self.userips=topk(self.n)
 		files = [line[:-1] for line in open(self.logFile)]
-		print(self.userips)
-		print(files)
 		if(len(self.userips)<len(files)):
 			print "Less active nodes...Connect more devices"
-			print len(self.userips)
-			print len(files)
 			return
 		temp=[x+" "+y+"\n" for x,y in zip(files,self.userips)]
 		target=open(self.logFile,'w')
@@ -79,7 +78,7 @@ class FileManager(object):
 			temp.write(x+" "+y+"\n")
 			x=x.split('/')[-1]
 			try:
-				a=os.system("scp pi@"+y+":/home/pi/files/"+x+" /home/mayur/mobileiaas/files/"+x)
+				a=os.system("scp pi@"+y+":/home/pi/files/"+x+" "+self.filepath+x)
 				if a==0:
 					k=k-1
 				if k==0:
