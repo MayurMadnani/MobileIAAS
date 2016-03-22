@@ -14,28 +14,43 @@ def createTable():
 
 def select():
 	conn = sqlite3.connect('db')
-        cursor = conn.execute("SELECT mac,ip,disk,ram,wifi,alive from clientdata")
-        table=[]
-        print ""
-        for row in cursor:
-            table.append([str(i) for i in row])
-        print tabulate(table,headers=["MAC","IP","Disk","RAM","WiFi","Alive"],tablefmt="simple")
+	try:
+            cursor = conn.execute("SELECT mac,ip,disk,ram,wifi,alive from clientdata")
+            table=[]
+            print ""
+            for row in cursor:
+                table.append([str(i) for i in row])
+            print tabulate(table,headers=["MAC","IP","Disk","RAM","WiFi","Alive"],tablefmt="simple")
+        except:
+            conn.close()
+            select()
+            return
         conn.close()
 
 
 def pingips():
 	conn = sqlite3.connect('db')
-        cursor = conn.execute("SELECT ip  from clientdata")
-        a=[str(r[0]) for r in cursor.fetchall()]
+	try:
+            cursor = conn.execute("SELECT ip  from clientdata")
+            a=[str(r[0]) for r in cursor.fetchall()]
+        except:
+            conn.close()
+            pingips()
+            return
         conn.close()
         return a
 
 def topk(k):
 	conn = sqlite3.connect('db')
-	cursor = conn.execute("SELECT ip from clientdata where alive='Y' and wifi>40 order by disk desc limit(?)",(str(k)))
-        ips=[]
-        for row in cursor:
-            ips.append(row[0])
+	try:
+            cursor = conn.execute("SELECT ip from clientdata where alive='Y' and wifi>40 order by disk desc limit(?)",(str(k)))
+            ips=[]
+            for row in cursor:
+                ips.append(row[0])
+        except:
+            conn.close()
+            topk(k)
+            return
         conn.close()
         return ips
 
@@ -52,13 +67,23 @@ def insert(mac,ip,disk,ram,wifi):
 
 def update(mac,ip,disk,ram,wifi,alive):
 	conn = sqlite3.connect('db')
-	conn.execute("UPDATE clientdata set ip=?,disk=?,ram=?,wifi=?,alive=? where mac=?",(ip,disk,ram,wifi,alive, mac))
+	try:
+            conn.execute("UPDATE clientdata set ip=?,disk=?,ram=?,wifi=?,alive=? where mac=?",(ip,disk,ram,wifi,alive, mac))
+        except:
+            conn.close()
+            update(mac,ip,disk,ram,wifi,alive)
+            return
         conn.commit()
 	conn.close()
 
 def updatedead(ip):
 	conn = sqlite3.connect('db')
-	conn.execute("UPDATE clientdata set alive='N' where ip=?",(ip,))
+	try:
+            conn.execute("UPDATE clientdata set alive='N' where ip=?",(ip,))
+        except:
+            conn.close()
+            updatedead(ip)
+            return
         conn.commit()
 	conn.close()
 
